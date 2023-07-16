@@ -1,0 +1,16 @@
+{
+  "name": "seadeExtractor",
+  "version": "1.0.0",
+  "main": "index.js",
+  "author": "Junior <arkantoster@gmail.com>",
+  "license": "MIT",
+  "type": "module",
+  "dependencies": {
+    "axios": "^1.4.0",
+    "dotenv": "^16.3.1",
+    "moment": "^2.29.4",
+    "ora": "^6.3.1",
+    "sqlite": "^5.0.1",
+    "sqlite3": "^5.1.6"
+  }
+}
