@@ -9,7 +9,7 @@ const getLocals = async () => {
 
   let spin = log(`Ajustando tabelas`, { indent: 2 })
   try {
-    await SQLite.exec(`CREATE TABLE localidades(
+    await SQLite.exec(`CREATE TABLE IF NOT EXISTS localidades(
       codigo INTEGER PRIMARY KEY,
       codigo_ibge TEXT,
       nome TEXT,
@@ -19,7 +19,6 @@ const getLocals = async () => {
     )`)
   } catch (error) {
     spin.fail(`Error: ${error}`)
-    return
   }
   spin.succeed('Tabela ajustada')
 

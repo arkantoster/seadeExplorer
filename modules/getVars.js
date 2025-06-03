@@ -22,7 +22,7 @@ const getVars = async () => {
 
   let spin = log(`Ajustando tabelas`, { indent: 2 })
   try {
-    await SQLite.exec(`CREATE TABLE variaveis(
+    await SQLite.exec(`CREATE TABLE IF NOT EXISTS variaveis(
       codigo INTEGER PRIMARY KEY,
       nome TEXT,
       unidade TEXT,
@@ -33,7 +33,6 @@ const getVars = async () => {
     )`)
   } catch (error) {
     spin.fail(`Error: ${error}`)
-    return
   }
   spin.succeed('Tabela ajustada')
 

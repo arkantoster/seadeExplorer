@@ -9,7 +9,7 @@ const getData = async () => {
 
   let spin = log(`Ajustando tabelas`, { indent: 2 })
   try {
-    await SQLite.exec(`CREATE TABLE dados (
+    await SQLite.exec(`CREATE TABLE IF NOT EXISTS dados (
       dado             TEXT,
       ano              TEXT,
       codigo_municipio INTEGER NOT NULL,
@@ -19,7 +19,6 @@ const getData = async () => {
   )`)
   } catch (error) {
     spin.fail(`Error: ${error}`)
-    return
   }
   spin.succeed('Tabela ajustada')
 
