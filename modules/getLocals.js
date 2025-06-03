@@ -1,13 +1,18 @@
-import axios from 'axios'
-import db from './sqlite.js'
-import log from './log.js'
+import axios from "axios";
+import https from "https";
+import db from "./sqlite.js";
+import log from "./log.js";
 
 const getLocals = async () => {
-  const SQLite = await db
+  const SQLite = await db;
 
-  log('Localidades').info()
+  log("Localidades").info();
 
-  let spin = log(`Ajustando tabelas`, { indent: 2 })
+  const instance = axios.create({
+    httpsAgent: new https.Agent({ rejectUnauthorized: false }),
+  });
+
+  let spin = log(`Ajustando tabelas`, { indent: 2 });
   try {
     await SQLite.exec(`CREATE TABLE IF NOT EXISTS localidades(
       codigo INTEGER PRIMARY KEY,
@@ -16,37 +21,46 @@ const getLocals = async () => {
       nivel TEXT,
       codigo_pai TEXT,
       nome_pai TEXT
-    )`)
+    )`);
   } catch (error) {
-    spin.fail(`Error: ${error}`)
+    spin.fail(`Error: ${error}`);
   }
-  spin.succeed('Tabela ajustada')
+  spin.succeed("Tabela ajustada");
 
-  log(`Req`, { indent: 2 }).info()
+  log(`Req`, { indent: 2 }).info();
   try {
-    const { data: { localidades } } = await axios.get(`http://api-imp.seade.gov.br/v1/localidade`)
+    const {
+      data: { localidades },
+    } = await instance.get(`http://api-imp.seade.gov.br/v1/localidade`);
 
-    spin = log(`Size: ${localidades.length}`, { indent: 4 })
+    spin = log(`Size: ${localidades.length}`, { indent: 4 });
 
-    let data = []
-    let batchSize = 10
-    let added = 0
+    let data = [];
+    let batchSize = 10;
+    let added = 0;
 
     for (let i = 0; i < localidades.length; i++) {
       const local = localidades[i];
-      data.push(`(${local.codigo}, '${local.codigo_ibge}', '${local.nome.replace('\'', '')}', '${local.nivel}', '${local.codigo_pai}', '${local.nome_pai}')`)
+      data.push(
+        `(${local.codigo}, '${local.codigo_ibge}', '${local.nome.replace(
+          "'",
+          ""
+        )}', '${local.nivel}', '${local.codigo_pai}', '${local.nome_pai}')`
+      );
       if (data.length >= batchSize || i + 1 === localidades.length) {
-        let resp = await SQLite.run(`INSERT INTO localidades VALUES ${data.join()}`)
-        added += data.length
-        spin.text = `Size: ${localidades.length}/${added}`
-        data = []
+        let resp = await SQLite.run(
+          `INSERT INTO localidades VALUES ${data.join()}`
+        );
+        added += data.length;
+        spin.text = `Size: ${localidades.length}/${added}`;
+        data = [];
       }
     }
-    spin.info()
-    log('dados inseridos', { indent: 4 }).info()
+    spin.info();
+    log("dados inseridos", { indent: 4 }).info();
   } catch (error) {
-    spin.fail(`Error: ${error}`)
+    spin.fail(`Error: ${error}`);
   }
-}
+};
 
-export default getLocals
+export default getLocals;
